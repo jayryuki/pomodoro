@@ -101,15 +101,10 @@ body {
     left: 50%;
     top: 0;
     transform-origin: center 200px;
-    transform: translateX(-50%) rotate(45deg);
+    transform: translateX(-50%) rotate(var(--tick-angle, 0deg));
     border-radius: 2px;
     transition: background 0.3s, height 0.3s;
 }
-
-.zone-marker[data-zone="0"] { transform: translateX(-50%) rotate(45deg); }
-.zone-marker[data-zone="1"] { transform: translateX(-50%) rotate(135deg); }
-.zone-marker[data-zone="2"] { transform: translateX(-50%) rotate(225deg); }
-.zone-marker[data-zone="3"] { transform: translateX(-50%) rotate(315deg); }
 
 #orientation-ring[data-zone="0"] .zone-marker[data-zone="0"],
 #orientation-ring[data-zone="1"] .zone-marker[data-zone="1"],
