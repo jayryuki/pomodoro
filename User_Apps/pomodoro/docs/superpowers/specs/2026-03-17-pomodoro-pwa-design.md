@@ -18,14 +18,16 @@ A minimalist PWA pomodoro app where phone rotation selects timer presets. The ro
 - Use `DeviceOrientationEvent` API to track phone orientation
 - Accumulate rotation delta to create a continuous wheel (no max)
 - Define 4 zones based on accumulated rotation position (e.g., 0-90° = preset 1, 90-180° = preset 2, etc.)
-- When entering a new zone, activate that preset and reset timer
+- Zone activates instantly when entering a new zone
+- **During normal use (timer running or stopped):** rotating to a new zone activates that preset and resets the timer to the new preset duration (timer stays stopped, user must press start)
+- **After alarm (timer = 0):** rotating to a new zone activates the preset, resets timer, and auto-starts the countdown
 
 ## Timer Logic
 
-- **On preset activation:** Reset timer to preset duration
-- **On Start:** Lock rotation detection, begin countdown
-- **On Timer = 0:** Play alarm sound, keep playing until rotation detected
-- **On Rotation after alarm:** Stop alarm, activate new preset, auto-start countdown
+- **On preset activation (normal):** Reset timer to preset duration (timer stays stopped)
+- **On Start:** Lock rotation detection — rotation events continue to be tracked but zone changes are ignored. Timer begins countdown.
+- **On Timer = 0:** Play alarm sound, keep playing until rotation detected into a new zone
+- **On Rotation after alarm:** Stop alarm, activate new preset, reset timer to new preset duration, auto-start countdown
 
 ## Settings
 
