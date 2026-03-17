@@ -146,7 +146,9 @@ const ASSETS = [
     '/js/storage.js',
     '/js/settings.js',
     '/sounds/alarm.mp3',
-    '/manifest.json'
+    '/manifest.json',
+    '/icons/icon-192.png',
+    '/icons/icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -707,12 +709,18 @@ const app = {
     },
     
     initRotation() {
+        // Apply settings preference on init
+        if (settings.isRotationUnlocked()) {
+            rotation.unlock();
+        }
+        
         rotation.init((newZone, previousZone) => {
             const timerState = timer.getState();
             
             // If alarm is playing, rotating stops alarm and starts new timer
-            // NOTE: Do NOT lock rotation here - rotation unlocks automatically when alarm triggers
+            // Rotation is explicitly unlocked when alarm triggers (per spec)
             if (timerState === 'alarm') {
+                rotation.unlock();  // Ensure rotation is unlocked for alarm state
                 this.stopAlarm();
                 this.activatePreset(newZone);
                 timer.start();
@@ -802,59 +810,6 @@ document.addEventListener('DOMContentLoaded', () => {
 ```bash
 git add js/app.js
 git commit -m "feat: add main app logic integrating all modules"
-```
-
----
-
-## Task 9: Sprite System (User-Requested)
-
-**Files:**
-- Modify: `js/storage.js`
-- Modify: `js/app.js`
-
-- [ ] **Step 1: Extend storage.js for sprite assets**
-
-```javascript
-// Add to STORAGE_KEYS in js/storage.js
-SPRITES: 'pomodoro_sprites',
-
-// Add methods to storage object
-getSprites() {
-    const stored = localStorage.getItem(STORAGE_KEYS.SPRITES);
-    return stored ? JSON.parse(stored) : {};
-},
-
-setSprite(key, value) {
-    const sprites = this.getSprites();
-    sprites[key] = value;
-    localStorage.setItem(STORAGE_KEYS.SPRITES, JSON.stringify(sprites));
-},
-```
-
-- [ ] **Step 2: Add sprite system to settings UI**
-
-Add sprite upload UI to settings modal in index.html and settings.js
-
-- [ ] **Step 3: Apply sprites in app.js**
-
-```javascript
-applySprites() {
-    const sprites = storage.getSprites();
-    
-    if (sprites.companion) {
-        // Apply companion sprite to UI
-    }
-    if (sprites.timer_bg) {
-        // Apply timer background
-    }
-}
-```
-
-- [ ] **Step 4: Commit**
-
-```bash
-git add js/storage.js js/app.js index.html js/settings.js
-git commit -m "feat: add sprite system for customizable UI"
 ```
 
 ---
