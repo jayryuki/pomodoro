@@ -22,6 +22,7 @@ const settings = {
         
         this.loadSettings();
         this.bindEvents();
+        this.initSprites();
     },
     
     loadSettings() {
@@ -65,5 +66,25 @@ const settings = {
     
     isRotationUnlocked() {
         return storage.getRotationUnlocked();
+    },
+    
+    handleSpriteUpload(inputId, spriteKey) {
+        const input = document.getElementById(inputId);
+        input.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    storage.setSprite(spriteKey, event.target.result);
+                    window.dispatchEvent(new CustomEvent('sprites-changed'));
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    },
+    
+    initSprites() {
+        this.handleSpriteUpload('sprite-companion', 'companion');
+        this.handleSpriteUpload('sprite-timer-bg', 'timer_bg');
     }
 };

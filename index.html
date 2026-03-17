@@ -42,6 +42,18 @@
             <input type="number" id="preset-3" value="30" min="1">
             <input type="number" id="preset-4" value="60" min="1">
         </div>
+        <div id="sprites-editor">
+            <h3>Custom Sprites</h3>
+            <label>
+                Companion Image:
+                <input type="file" id="sprite-companion" accept="image/*">
+            </label>
+            <label>
+                Timer Background:
+                <input type="file" id="sprite-timer-bg" accept="image/*">
+            </label>
+            <div id="current-sprites"></div>
+        </div>
         <button id="save-settings">Save</button>
         <button id="close-settings">Close</button>
     </div>

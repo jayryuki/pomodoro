@@ -27,6 +27,10 @@ const app = {
                 document.getElementById('debug-zone').textContent = e.detail.zone;
             }
         });
+        
+        window.addEventListener('sprites-changed', () => {
+            this.applySprites();
+        });
     },
     
     bindElements() {
@@ -115,6 +119,15 @@ const app = {
             debugOverlay.classList.remove('hidden');
         } else {
             debugOverlay.classList.add('hidden');
+        }
+    },
+    
+    applySprites() {
+        const sprites = storage.getSprites();
+        
+        if (sprites.timer_bg) {
+            this.timerDisplay.style.backgroundImage = `url(${sprites.timer_bg})`;
+            this.timerDisplay.style.backgroundSize = 'cover';
         }
     }
 };
