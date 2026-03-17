@@ -233,14 +233,22 @@ const app = {
         const degrees = Math.round(detail.rotation);
         
         const ball = document.getElementById('orientation-ball');
+        const timerDisplay = document.getElementById('timer-display');
+        const ring = document.getElementById('orientation-ring');
         if (ball) {
-            const radius = 140;
+            const radius = 200;
             const rad = (degrees - 90) * (Math.PI / 180);
             const x = radius + radius * Math.cos(rad);
             const y = radius + radius * Math.sin(rad);
             ball.style.left = x + 'px';
             ball.style.top = y + 'px';
             ball.style.transform = 'translate(-50%, -50%)';
+        }
+        if (timerDisplay) {
+            timerDisplay.style.transform = `translate(-50%, -50%) rotate(${degrees}deg)`;
+        }
+        if (ring) {
+            ring.dataset.zone = detail.zone;
         }
     },
     

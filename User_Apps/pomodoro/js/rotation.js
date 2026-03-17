@@ -56,7 +56,8 @@ const rotation = {
             wrappedRotation = ((wrappedRotation % 360) + 360) % 360;
         }
         
-        const newZone = Math.floor(wrappedRotation / 90);
+        const shiftedRotation = (wrappedRotation + 45) % 360;
+        const newZone = Math.floor(shiftedRotation / 90);
         
         if (newZone !== currentZone) {
             const previousZone = currentZone;
@@ -114,7 +115,8 @@ const rotation = {
             wrappedRotation = ((wrappedRotation % 360) + 360) % 360;
         }
         
-        const newZone = Math.floor(wrappedRotation / 90);
+        const shiftedRotation = (wrappedRotation + 45) % 360;
+        const newZone = Math.floor(shiftedRotation / 90);
         
         console.log('Delta:', diff, 'Accumulated:', accumulatedRotation, 'Wrapped:', wrappedRotation, 'Zone:', newZone);
         
