@@ -13,7 +13,39 @@ const rotation = {
             this.requestPermission();
         } else {
             window.addEventListener('deviceorientation', this.handleOrientation.bind(this));
+            this.setupKeyboardFallback();
         }
+    },
+    
+    setupKeyboardFallback() {
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                this.simulateRotation(-15);
+            } else if (e.key === 'ArrowRight') {
+                this.simulateRotation(15);
+            }
+        });
+    },
+    
+    simulateRotation(delta) {
+        accumulatedRotation += delta;
+        lastGamma = (lastGamma || 0) + delta;
+        
+        const newZone = Math.floor(accumulatedRotation / 90) % 4;
+        const normalizedZone = newZone < 0 ? newZone + 4 : newZone;
+        
+        if (normalizedZone !== currentZone) {
+            const previousZone = currentZone;
+            currentZone = normalizedZone;
+            
+            if (onZoneChange) {
+                onZoneChange(currentZone, previousZone);
+            }
+        }
+        
+        window.dispatchEvent(new CustomEvent('rotation-update', {
+            detail: { rotation: accumulatedRotation, zone: currentZone }
+        }));
     },
     
     async requestPermission() {
@@ -29,6 +61,8 @@ const rotation = {
     
     handleOrientation(event) {
         const gamma = event.gamma;
+        
+        console.log('DeviceOrientation:', { gamma, beta: event.beta, alpha: event.alpha });
         
         if (gamma === null) return;
         
