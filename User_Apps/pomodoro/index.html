@@ -12,13 +12,20 @@
 <body>
     <div id="app">
         <div id="debug-overlay" class="hidden">
+            <div>Gamma: <span id="debug-gamma">0</span>°</div>
             <div>Rotation: <span id="debug-rotation">0</span>°</div>
             <div>Zone: <span id="debug-zone">0</span></div>
+            <div>Locked: <span id="debug-locked">true</span></div>
         </div>
         
         <div id="preset-indicator">Preset: <span id="current-preset">5</span> min</div>
         
-        <div id="timer-display">05:00</div>
+        <div id="timer-wrapper">
+            <div id="orientation-ring">
+                <div id="orientation-ball"></div>
+            </div>
+            <div id="timer-display">05:00</div>
+        </div>
         
         <button id="start-btn">Start</button>
         

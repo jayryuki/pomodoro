@@ -26,7 +26,8 @@ const storage = {
     },
     
     getRotationUnlocked() {
-        return localStorage.getItem(STORAGE_KEYS.UNLOCK_ROTATION) === 'true';
+        const stored = localStorage.getItem(STORAGE_KEYS.UNLOCK_ROTATION);
+        return stored === null ? true : stored === 'true';
     },
     
     setRotationUnlocked(unlocked) {

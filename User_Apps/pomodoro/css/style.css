@@ -3,6 +3,7 @@
     --text-color: #eee;
     --accent-color: #e94560;
     --secondary-color: #16213e;
+    --glow-color: #00d4ff;
 }
 
 * {
@@ -53,6 +54,53 @@ body {
     font-weight: bold;
     margin: 40px 0;
     font-variant-numeric: tabular-nums;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(0deg);
+}
+
+#timer-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+#orientation-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.15);
+    pointer-events: none;
+}
+
+#orientation-ring::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+}
+
+#orientation-ball {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--glow-color);
+    box-shadow: 0 0 10px var(--glow-color), 0 0 20px var(--glow-color), 0 0 30px var(--glow-color);
+    left: 140px;
+    top: 0px;
+    transform: translate(-50%, -50%);
+    transition: left 0.3s ease, top 0.3s ease;
 }
 
 #start-btn {

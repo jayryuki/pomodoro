@@ -2,41 +2,65 @@ let accumulatedRotation = 0;
 let lastGamma = null;
 let currentZone = 0;
 let onZoneChange = null;
-let isLocked = true;
+let isLocked = false;
+let isUsingGyro = false;
+let gyroFailed = false;
 
 const rotation = {
-    init(onZoneChangeCallback) {
+    permissionGranted: false,
+    
+    init(onZoneChangeCallback, applyLockState = true) {
         onZoneChange = onZoneChangeCallback;
         
-        if (typeof DeviceOrientationEvent !== 'undefined' && 
-            typeof DeviceOrientationEvent.requestPermission === 'function') {
-            this.requestPermission();
-        } else {
+        const needsPermission = typeof DeviceOrientationEvent !== 'undefined' && 
+            typeof DeviceOrientationEvent.requestPermission === 'function';
+        
+        console.log('Rotation init: needsPermission =', needsPermission);
+        
+        if (!needsPermission) {
+            this.permissionGranted = true;
+            isUsingGyro = true;
             window.addEventListener('deviceorientation', this.handleOrientation.bind(this));
-            this.setupKeyboardFallback();
+            console.log('DeviceOrientation: Added listener without permission (Android/non-iOS)');
+        } else if (this.permissionGranted) {
+            isUsingGyro = true;
+            window.addEventListener('deviceorientation', this.handleOrientation.bind(this));
         }
+    },
+    
+    setPermissionGranted() {
+        this.permissionGranted = true;
+        isUsingGyro = true;
+        window.addEventListener('deviceorientation', this.handleOrientation.bind(this));
+        console.log('DeviceOrientation: Permission granted, listener added');
     },
     
     setupKeyboardFallback() {
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') {
-                this.simulateRotation(-15);
+                accumulatedRotation -= 90;
+                this.updateZone();
             } else if (e.key === 'ArrowRight') {
-                this.simulateRotation(15);
+                accumulatedRotation += 90;
+                this.updateZone();
             }
         });
     },
     
-    simulateRotation(delta) {
-        accumulatedRotation += delta;
-        lastGamma = (lastGamma || 0) + delta;
+    updateZone() {
+        let wrappedRotation = accumulatedRotation;
         
-        const newZone = Math.floor(accumulatedRotation / 90) % 4;
-        const normalizedZone = newZone < 0 ? newZone + 4 : newZone;
+        if (wrappedRotation >= 0) {
+            wrappedRotation = wrappedRotation % 360;
+        } else {
+            wrappedRotation = ((wrappedRotation % 360) + 360) % 360;
+        }
         
-        if (normalizedZone !== currentZone) {
+        const newZone = Math.floor(wrappedRotation / 90);
+        
+        if (newZone !== currentZone) {
             const previousZone = currentZone;
-            currentZone = normalizedZone;
+            currentZone = newZone;
             
             if (onZoneChange) {
                 onZoneChange(currentZone, previousZone);
@@ -44,7 +68,7 @@ const rotation = {
         }
         
         window.dispatchEvent(new CustomEvent('rotation-update', {
-            detail: { rotation: accumulatedRotation, zone: currentZone }
+            detail: { rotation: wrappedRotation, zone: currentZone, gamma: wrappedRotation }
         }));
     },
     
@@ -60,29 +84,43 @@ const rotation = {
     },
     
     handleOrientation(event) {
-        const gamma = event.gamma;
+        if (isLocked) return;
         
-        console.log('DeviceOrientation:', { gamma, beta: event.beta, alpha: event.alpha });
+        const alpha = event.alpha;
         
-        if (gamma === null) return;
+        console.log('DeviceOrientation event - alpha:', alpha, 'beta:', event.beta, 'gamma:', event.gamma);
         
-        if (lastGamma !== null) {
-            let delta = gamma - lastGamma;
-            
-            if (delta > 90) delta -= 180;
-            if (delta < -90) delta += 180;
-            
-            accumulatedRotation += delta;
+        if (alpha === null) {
+            console.log('DeviceOrientation: alpha is null');
+            return;
         }
         
-        lastGamma = gamma;
+        let diff = 0;
+        if (lastGamma !== null) {
+            diff = alpha - lastGamma;
+            
+            if (diff > 180) diff -= 360;
+            if (diff < -180) diff += 360;
+            
+            accumulatedRotation += diff;
+        }
         
-        const newZone = Math.floor(accumulatedRotation / 90) % 4;
-        const normalizedZone = newZone < 0 ? newZone + 4 : newZone;
+        lastGamma = alpha;
         
-        if (normalizedZone !== currentZone) {
+        let wrappedRotation = accumulatedRotation;
+        if (wrappedRotation >= 0) {
+            wrappedRotation = wrappedRotation % 360;
+        } else {
+            wrappedRotation = ((wrappedRotation % 360) + 360) % 360;
+        }
+        
+        const newZone = Math.floor(wrappedRotation / 90);
+        
+        console.log('Delta:', diff, 'Accumulated:', accumulatedRotation, 'Wrapped:', wrappedRotation, 'Zone:', newZone);
+        
+        if (newZone !== currentZone) {
             const previousZone = currentZone;
-            currentZone = normalizedZone;
+            currentZone = newZone;
             
             if (onZoneChange) {
                 onZoneChange(currentZone, previousZone);
@@ -90,7 +128,7 @@ const rotation = {
         }
         
         window.dispatchEvent(new CustomEvent('rotation-update', {
-            detail: { rotation: accumulatedRotation, zone: currentZone }
+            detail: { rotation: wrappedRotation, zone: currentZone, gamma: alpha }
         }));
     },
     
@@ -104,10 +142,17 @@ const rotation = {
     
     lock() {
         isLocked = true;
+        console.log('Rotation locked');
     },
     
     unlock() {
         isLocked = false;
+        console.log('Rotation unlocked');
+    },
+    
+    setLocked(locked) {
+        isLocked = locked;
+        console.log('Rotation lock state:', isLocked);
     },
     
     isLocked() {
